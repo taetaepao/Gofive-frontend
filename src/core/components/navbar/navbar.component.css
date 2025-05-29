@@ -1,0 +1,16 @@
+.nav-link {
+  color: #000; /* Default text color */
+  background-color: transparent; /* Remove default bg */
+  transition: color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #f7750e; /* Blue on hover */
+}
+
+.nav-link.active {
+  color: #f7750e !important; /* Blue text only when active */
+  background-color: transparent !important; /* No background highlight */
+  font-weight: 500;
+}
+
