@@ -43,3 +43,12 @@ body {
   font-size: 24px;
   cursor: pointer;
 }
+
+input.form-control {
+  margin-bottom: 10px;
+}
+
+
+
+
+

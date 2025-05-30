@@ -1,19 +1,30 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { AddUsersRequest } from '../../models/add-users-request.model';
-import { FormsModule } from '@angular/forms';
-
+import { FormsModule, NgModel } from '@angular/forms';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-dashboard',
-
-  imports: [ RouterModule,CommonModule,FormsModule],
+  standalone: true, // assuming this is a standalone component
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
+  private http = inject(HttpClient);
   showModal = false;
+
+  model: AddUsersRequest = {
+    firstName: 'Pawarit',
+    lastName: '',
+    email: '',
+    mobile: '',
+    username: '',
+    password: '',
+    permission: ''
+  };
 
   openModal() {
     console.log('openModal called'); 
@@ -24,21 +35,22 @@ export class DashboardComponent {
     this.showModal = false;
   }
 
-  model: AddUsersRequest;
-
-  constructor() {
-    this.model = {
-      firstName: 'Pawarit',
-      lastName: '',
-      email: '',
-      mobile: '',
-      username: '',
-      password: ''
-    };
-  }
   onSubmit() {
-    console.log('Form submitted');
     console.log('Model:', this.model);
+    const apiUrl = 'https://example.com/api/users';
+
+    this.http.post(apiUrl, this.model)
+      .subscribe({
+        next: response => {
+          console.log('POST successful:', response);
+          alert('User added successfully!');
+        },
+        error: error => {
+          console.error('POST error:', error);
+          alert('Failed to add user.');
+        }
+      });
+
     this.closeModal();
   }
 }

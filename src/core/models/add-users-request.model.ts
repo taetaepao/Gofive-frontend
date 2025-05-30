@@ -5,4 +5,5 @@ export interface AddUsersRequest {
     mobile: string;
     username: string;
     password: string;
+    permission: string;
     }

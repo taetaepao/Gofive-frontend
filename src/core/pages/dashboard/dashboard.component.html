@@ -90,13 +90,21 @@
     <h2>Add User</h2>
 
     <form #from=""ngFrom="ngForm" (ngSubmit)="onSubmit()">
-      <input type="text" placeholder="First Name *" [(ngModel)]=model.firstName name="firstName">
-      <input type="text" placeholder="Last Name *" [(ngModel)]=model.lastName name="lastName">
-      <input type="email" placeholder="Email ID *" [(ngModel)]=model.email name="email">
-      <input type="text" placeholder="Mobile No" [(ngModel)]=model.mobile name="mobile">
-      <input type="text" placeholder="Username *" [(ngModel)]=model.username name="username">
-      <input type="password" placeholder="Password *" [(ngModel)]=model.password name="password">
-      <input type="password" placeholder="Confirm Password *" name="confirmPassword">
+      <input type="text" class="form-control"  placeholder="First Name *" [(ngModel)]=model.firstName name="firstName">
+      <input type="text" class="form-control" placeholder="Last Name *" [(ngModel)]=model.lastName name="lastName">
+      <input type="email" class="form-control" placeholder="Email ID *" [(ngModel)]=model.email name="email">
+      <input type="text" class="form-control" placeholder="Mobile No" [(ngModel)]=model.mobile name="mobile">
+      <input type="text" class="form-control" placeholder="Username *" [(ngModel)]=model.username name="username">
+      <input type="password" class="form-control" placeholder="Password *" [(ngModel)]=model.password name="password">
+      <input type="password" class="form-control" placeholder="Confirm Password *" name="confirmPassword">
+
+      <label for="permission">Permission *</label>
+        <select class="form-control" style="margin-bottom: 10px;" [(ngModel)]="model.permission" name="permission" required>
+          <option value="" disabled selected>Select permission</option>
+          <option value="super_admin">Super Admin</option>
+          <option value="admin">Admin</option>
+          <option value="employee">Employee</option>
+        </select>
 
       <button type="submit" class="btn btn-success">Add User</button>
     </form>
