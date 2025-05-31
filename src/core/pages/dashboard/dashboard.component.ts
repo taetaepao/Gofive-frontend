@@ -4,11 +4,12 @@ import { Router, RouterLink, RouterModule } from '@angular/router';
 import { AddUsersRequest } from '../../models/add-users-request.model';
 import { FormsModule, NgModel } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { PermissionListComponent } from "../permission-list/permission-list.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true, // assuming this is a standalone component
-  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule, PermissionListComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -37,7 +38,7 @@ export class DashboardComponent {
 
   onSubmit() {
     console.log('Model:', this.model);
-    const apiUrl = 'https://example.com/api/users';
+    const apiUrl = 'https://localhost:7216/api/Users';
 
     this.http.post(apiUrl, this.model)
       .subscribe({
