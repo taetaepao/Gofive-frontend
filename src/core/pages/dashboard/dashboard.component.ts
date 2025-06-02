@@ -19,47 +19,94 @@ import { Users } from '../../models/users.model';
 })
 export class DashboardComponent {
   showModal = false;
-
+  isEditMode = false;
+  selectedUserId: string | null = null;
   model: AddUsersRequest;
-
-  openModal() {
-    console.log('openModal called'); 
-    this.showModal = true;
-  }
-
-  closeModal() {
-    this.showModal = false;
-  }
 
   constructor(private userService: UserService,private permissionService : PermissionService) { 
     // Initialize the model if needed
     this.model = {
-      firstName: 'Pawarit',
+      firstName: '',
       lastName: '',
       email: '',
-      mobile: '',
+      phoneNumber: '',
       username: '',
       password: '',
       permission: ''
     };
-    
   }
 
-  onSubmit() {
+  openModal() {
+    console.log('openModal called'); 
+    this.isEditMode = false; // Reset to add mode
+    this.selectedUserId = null; // Clear selected user ID
+    this.showModal = true;
+
+  }
+
+  onEdit(userId: any): void {
+    console.log('Edit user with ID:', userId);
+  this.isEditMode = true;
+  this.selectedUserId = userId;
+
+  this.userService.getUserById(userId).subscribe({
+    next: (user) => {
+      this.model = { ...user };  // Pre-fill the form
+      this.showModal = true;
+    },
+    error: (err) => {
+      console.error('Error fetching user:', err);
+    }
+  });
+}
+
+  closeModal() {
+    this.showModal = false;
+    this.isEditMode = false; // Reset to add mode
+    this.selectedUserId = null; // Clear selected user ID
+  }
+
+    
+
+  onSubmit(): void {
+  if (this.isEditMode) {
+    // Call update service
+    if (this.selectedUserId) {
+      this.userService.updateUser(this.selectedUserId, this.model).subscribe({
+        next: () => {
+          this.closeModal();
+          this.loadUsers(); // Refresh list
+        },
+        error: err => {
+          console.error('Error updating user:', err);
+        }
+      });
+    } else {
+      console.error('No user selected for update.');
+    }
+  } else {
+    // Call add/create service
     this.userService.addUser(this.model).subscribe({
       next: () => {
-        console.log('User added successfully');
-        alert('User added successfully');
-
+        this.closeModal();
+        this.loadUsers(); // Refresh list
       },
-      error: (err) => {
+      error: err => {
         console.error('Error adding user:', err);
-        alert('Failed to add user');
       }
     });
-
-    this.closeModal();
   }
+}
+loadUsers(): void {
+  this.userService.getAllUsers().subscribe({
+    next: (users) => {
+      this.pagedUsers = users;
+    },
+    error: (err) => {
+      console.error('Failed to load users:', err);
+    }
+  });
+}
 
   permissions?: Permission[];
   users? : Users[];
@@ -86,7 +133,21 @@ updatePagedUsers(): void {
   const end = this.endItem;
   this.pagedUsers = this.users ? this.users.slice(start, end) : [];
 }
+ onDelete(userId: string): void {
+    console.log('Delete user with ID:', userId);
+    if (confirm('Are you sure you want to delete this user?')) {
+      this.userService.deleteUser(userId).subscribe({
+        next: () => {
+          this.pagedUsers = this.pagedUsers.filter(u => u.id !== userId);
+        },
+        error: (err) => {
+          console.error('Failed to delete user:', err);
+        }
+      });
+    }
+  }
 
+  // Pagination properties-------------------------------
 itemsPerPage = 6;
 currentPage = 1;
 totalItems = 10;

@@ -20,4 +20,14 @@ export class UserService {
   getAllUsers():Observable<Users[]> {
       return this.http.get<Users[]>(`${environment.apiUrl}/Users`);
   }
+  getUserById(id: string): Observable<Users> {
+    return this.http.get<Users>(`${environment.apiUrl}/Users/${id}`);
+  }
+
+  updateUser(id: string, userData: any): Observable<any> {
+  return this.http.put(`/api/users/${id}`, userData);
+  }
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/Users/${id}`);
+  }
 }
