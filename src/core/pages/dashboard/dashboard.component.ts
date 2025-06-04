@@ -9,6 +9,7 @@ import { PermissionService } from '../../services/permission.service';
 import { Permission } from '../../models/permission.model';
 import { UserService } from '../../services/user.service';
 import { Users } from '../../models/users.model';
+import { PermissionUpdateService } from '../../services/permission-update.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,8 +23,11 @@ export class DashboardComponent {
   isEditMode = false;
   selectedUserId: string | null = null;
   model: AddUsersRequest;
+  permissions?: Permission[];
+  users? : Users[];
 
-  constructor(private userService: UserService,private permissionService : PermissionService) { 
+  constructor(private userService: UserService,private permissionService : PermissionService
+    ,private permissionUpdateService: PermissionUpdateService) { 
     // Initialize the model if needed
     this.model = {
       firstName: '',
@@ -34,6 +38,15 @@ export class DashboardComponent {
       password: '',
       permission: ''
     };
+  }
+
+  ngOnInit(): void {
+    this.permissionUpdateService.update$.subscribe(() => {
+      this.loadPermissions(); // or any method that refreshes the list
+    });
+    this.loadPermissions(); // Load permissions on initialization
+
+    this.loadUsers(); // Load users on initialization
   }
 
   openModal() {
@@ -108,7 +121,6 @@ export class DashboardComponent {
         this.users = response.users;
         this.totalItems = response.totalcount;
         this.totalPage = Math.ceil(this.totalItems / this.itemsPerPage);
-        this.updatePagedUsers();
       },
       error: (err) => {
         console.error('Failed to load users:', err);
@@ -116,26 +128,17 @@ export class DashboardComponent {
     });
   }
 
-  permissions?: Permission[];
-  users? : Users[];
-  ngOnInit(): void {
+  loadPermissions(): void {
     this.permissionService.getAllPermissions().subscribe({
       next: (response: Permission[]) => {
         this.permissions = response;
         console.log('Permissions loaded:', this.permissions);
-      }
-    });
-
-    this.userService.getPagedUsers(this.currentPage,this.itemsPerPage,this.selectedSort,this.searchTerm).subscribe({
-      next: (response) => {
-        this.users = response.users;
-        this.totalItems = response.totalcount;
-        this.totalPage = Math.ceil(this.totalItems / this.itemsPerPage);
-        console.log('Users loaded:', response.users);
-        console.log('Total items:', response.totalcount);
+      }, error: (err) => {
+        console.error('Failed to load permissions:', err);
       }
     });
   }
+
   updatePagedUsers(): void {
     const start = this.startItem;
     const end = this.endItem;

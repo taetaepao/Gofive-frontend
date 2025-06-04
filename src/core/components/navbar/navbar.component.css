@@ -5,11 +5,11 @@
 }
 
 .nav-link:hover {
-  color: #f7750e; /* Blue on hover */
+  color: #f7750e; 
 }
 
 .nav-link.active {
-  color: #f7750e !important; /* Blue text only when active */
+  color: #f7750e !important; 
   background-color: transparent !important; /* No background highlight */
   font-weight: 500;
 }

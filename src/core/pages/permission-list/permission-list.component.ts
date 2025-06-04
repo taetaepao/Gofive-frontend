@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PermissionService } from '../../services/permission.service';
 import { response } from 'express';
+import { PermissionUpdateService } from '../../services/permission-update.service';
 
 @Component({
   selector: 'app-permission-list',
@@ -18,7 +19,7 @@ export class PermissionListComponent  implements OnInit {
 
   permissions?: Permission[];
 
-  constructor(private permissionService : PermissionService) {}
+  constructor(private permissionService : PermissionService,private permissionUpdateService: PermissionUpdateService) {}
 
   ngOnInit(): void {
     this.permissionService.getAllPermissions().subscribe({
@@ -29,14 +30,34 @@ export class PermissionListComponent  implements OnInit {
     });
   }
 
-  // Optional: Method to save updates (when you build the POST or PUT API)
-  // savePermissions(): void {
-  //   this.http.post('https://localhost:7216/api/permissions/update', this.permissions)
-  //     .subscribe({
-  //       next: () => alert('Permissions updated successfully!'),
-  //       error: (err) => console.error('Failed to update permissions:', err)
-  //     });
-  // }
+  onDelete(permissionId: string): void {
+    console.log('Delete permission with ID:', permissionId);
+    if (confirm('Are you sure you want to delete this user?')) {
+      this.permissionService.deletePermission(permissionId).subscribe({
+        next: () => {
+          console.log('Permission deleted successfully');
+          this.permissionUpdateService.notifyUpdate(); // notify others
+          this.ngOnInit();
+        },
+        error: (error) => {
+          console.error('Error deleting permission:', error);
+        }
+      });
+    }
+  }
+
+  onSave(permission: Permission): void {
+  this.permissionService.updatePermission(permission.id, permission).subscribe({
+    next: () => {
+      console.log('Permission updated successfully');
+      // Optionally reload permissions
+      // this.loadPermissions(); 
+    },
+    error: (err) => {
+      console.error('Failed to update permission', err);
+    }
+  });
+}
 
   showModal = false;
 

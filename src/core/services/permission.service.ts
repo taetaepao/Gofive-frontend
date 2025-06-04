@@ -14,4 +14,16 @@ export class PermissionService {
   getAllPermissions():Observable<Permission[]> {
     return this.http.get<Permission[]>(`${environment.apiUrl}/Permission`);
   }
+
+  // addPermission(permission: Permission): Observable<Permission> {
+  //   return this.http.post<Permission>(`${environment.apiUrl}/Permission`, permission);
+  // }
+
+  updatePermission(permissionId: string, permission: Permission): Observable<Permission> {
+    return this.http.post<Permission>(`${environment.apiUrl}/Permission/${permissionId}`, permission);
+  }
+
+  deletePermission(permissionId: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/Permission/${permissionId}`);
+  }
 }

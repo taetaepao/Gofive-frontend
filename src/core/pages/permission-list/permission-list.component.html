@@ -1,34 +1,40 @@
 <button class="btn btn-primary" type="button" (click)="openModal()">Edit Permissions</button>
 
-<div class="modal-overlay" *ngIf="showModal">
-  <div class="modal-content">
-    <span class="close-btn" (click)="closeModal()">&times;</span>
-    <h4>Edit Permissions</h4>
-
-    <table class="table table-bordered">
+<table class="table table-bordered">
   <thead>
     <tr>
       <th>Role</th>
       <th>Read</th>
       <th>Write</th>
       <th>Delete</th>
+      <th class="border-0" style="width: 1%;"></th> <!-- Save Button Column -->
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let permission of permissions">
       <td>{{ permission.roleName }}</td>
-      <td>
-        <input type="checkbox" [checked]="permission.canRead" disabled />
+      <td><input type="checkbox" [(ngModel)]="permission.canRead" /></td>
+      <td><input type="checkbox" [(ngModel)]="permission.canWrite" /></td>
+      <td><input type="checkbox" [(ngModel)]="permission.canDelete" /></td>
+      <td class="border-0 p-0 text-center align-middle" style="width: 1%;">
+        <button
+          class="btn btn-sm btn-outline-success"
+          (click)="onSave(permission)"
+          title="Save permission"
+          type="button">
+          <i class="bi bi-check2-circle"></i>
+        </button>
       </td>
-      <td>
-        <input type="checkbox" [checked]="permission.canWrite" disabled />
-      </td>
-      <td>
-        <input type="checkbox" [checked]="permission.canDelete" disabled />
+      <td class="border-0 p-0 text-center align-middle" style="width: 1%;">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          (click)="onDelete(permission.id)"
+          title="Delete permission"
+          type="button">
+          <i class="bi bi-trash"></i>
+        </button>
       </td>
     </tr>
   </tbody>
 </table>
 
-  </div>
-</div>
