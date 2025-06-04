@@ -17,7 +17,7 @@ import { Users } from '../../models/users.model';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
+export class DashboardComponent { 
   showModal = false;
   isEditMode = false;
   selectedUserId: string | null = null;
@@ -44,21 +44,21 @@ export class DashboardComponent {
 
   }
 
-  onEdit(userId: any): void {
+  onEdit(userId: string): void {
     console.log('Edit user with ID:', userId);
-  this.isEditMode = true;
-  this.selectedUserId = userId;
+    this.isEditMode = true;
+    this.selectedUserId = userId;
 
-  this.userService.getUserById(userId).subscribe({
-    next: (user) => {
-      this.model = { ...user };  // Pre-fill the form
-      this.showModal = true;
-    },
-    error: (err) => {
-      console.error('Error fetching user:', err);
-    }
-  });
-}
+    this.userService.getUserById(userId).subscribe({
+      next: (user) => {
+        this.model = { ...user };  // Pre-fill the form
+        this.showModal = true;
+      },
+      error: (err) => {
+        console.error('Error fetching user:', err);
+      }
+    });
+  }
 
   closeModal() {
     this.showModal = false;
@@ -94,51 +94,60 @@ export class DashboardComponent {
       error: err => {
         console.error('Error adding user:', err);
       }
+      });
+    }
+  }
+
+  pageSize = 3; // Default page size
+  selectedSort: string = 'updatedat';
+  searchTerm: string = '';
+
+  loadUsers(): void {
+    this.userService.getPagedUsers(this.currentPage,this.itemsPerPage,this.selectedSort,this.searchTerm).subscribe({
+      next: (response) => {
+        this.users = response.users;
+        this.totalItems = response.totalcount;
+        this.totalPage = Math.ceil(this.totalItems / this.itemsPerPage);
+        this.updatePagedUsers();
+      },
+      error: (err) => {
+        console.error('Failed to load users:', err);
+      }
     });
   }
-}
-loadUsers(): void {
-  this.userService.getAllUsers().subscribe({
-    next: (users) => {
-      this.pagedUsers = users;
-    },
-    error: (err) => {
-      console.error('Failed to load users:', err);
-    }
-  });
-}
 
   permissions?: Permission[];
   users? : Users[];
-  pagedUsers: Users[] = [];
   ngOnInit(): void {
-  this.permissionService.getAllPermissions().subscribe({
-    next: (response: Permission[]) => {
-      this.permissions = response;
-      console.log('Permissions loaded:', this.permissions);
-    }
-  });
+    this.permissionService.getAllPermissions().subscribe({
+      next: (response: Permission[]) => {
+        this.permissions = response;
+        console.log('Permissions loaded:', this.permissions);
+      }
+    });
 
-  this.userService.getAllUsers().subscribe({
-    next: (response: Users[]) => {
-      this.users = response;
-      this.totalItems = this.users.length;
-      this.updatePagedUsers();
-      console.log('Users loaded:', this.users);
-    }
-  });
-}
-updatePagedUsers(): void {
-  const start = this.startItem;
-  const end = this.endItem;
-  this.pagedUsers = this.users ? this.users.slice(start, end) : [];
-}
- onDelete(userId: string): void {
+    this.userService.getPagedUsers(this.currentPage,this.itemsPerPage,this.selectedSort,this.searchTerm).subscribe({
+      next: (response) => {
+        this.users = response.users;
+        this.totalItems = response.totalcount;
+        this.totalPage = Math.ceil(this.totalItems / this.itemsPerPage);
+        console.log('Users loaded:', response.users);
+        console.log('Total items:', response.totalcount);
+      }
+    });
+  }
+  updatePagedUsers(): void {
+    const start = this.startItem;
+    const end = this.endItem;
+    this.loadUsers();
+    this.totalPage = Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+  onDelete(userId: string): void {
     console.log('Delete user with ID:', userId);
     if (confirm('Are you sure you want to delete this user?')) {
       this.userService.deleteUser(userId).subscribe({
         next: () => {
-          this.pagedUsers = this.pagedUsers.filter(u => u.id !== userId);
+          this.users = (this.users ?? []).filter(u => u.id !== userId);
         },
         error: (err) => {
           console.error('Failed to delete user:', err);
@@ -146,13 +155,24 @@ updatePagedUsers(): void {
       });
     }
   }
+// Sort properties-----------------------------------
+  onSortChange() {
+    this.currentPage = 1; // reset to first page
+    this.loadUsers();
+  }
+// Search properties-----------------------------------
+  onSearchChange() {
+    this.currentPage = 1;
+    this.loadUsers();
+  }
 
   // Pagination properties-------------------------------
-itemsPerPage = 6;
-currentPage = 1;
-totalItems = 10;
+  itemsPerPage = 3;
+  currentPage = 1;
+  totalItems = 10;
+  totalPage = 1;
 
-  pageSizeOptions = [4, 6, 10, 20];
+  pageSizeOptions = [3, 6, 10, 20];
 
   get startItem() {
     return (this.currentPage - 1) * this.itemsPerPage;
@@ -163,24 +183,21 @@ totalItems = 10;
   }
 
   onItemsPerPageChange() {
-  this.currentPage = 1;
-  this.updatePagedUsers();
-}
-
-prevPage() {
-  if (this.currentPage > 1) {
-    this.currentPage--;
+    this.currentPage = 1;
     this.updatePagedUsers();
   }
-}
 
-nextPage() {
-  if (this.endItem < this.totalItems) {
-    this.currentPage++;
-    this.updatePagedUsers();
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagedUsers();
+    }
   }
-}
 
-
-
+  nextPage() {
+    if (this.endItem < this.totalItems) {
+      this.currentPage++;
+      this.updatePagedUsers();
+    }
+  }
 }
